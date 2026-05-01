@@ -3,7 +3,7 @@
 ## exponential
 
 - Best L2 error: 0.00e+00
-- Speedup: 4.62x
+- Speedup: 4.71x
 
 ![Error vs Time](figures/exponential_error_vs_time.png)
 
@@ -16,7 +16,7 @@
 ## harmonic
 
 - Best L2 error: 1.92e-05
-- Speedup: 15.19x
+- Speedup: 17.29x
 
 ![Error vs Time](figures/harmonic_error_vs_time.png)
 
@@ -29,7 +29,7 @@
 ## damped harmonic
 
 - Best L2 error: 1.52e-05
-- Speedup: 17.89x
+- Speedup: 13.47x
 
 ![Error vs Time](figures/damped_harmonic_error_vs_time.png)
 
@@ -42,7 +42,7 @@
 ## forced
 
 - Best L2 error: 5.65e-05
-- Speedup: 18.64x
+- Speedup: 18.03x
 
 ![Error vs Time](figures/forced_error_vs_time.png)
 
@@ -55,7 +55,7 @@
 ## logistic
 
 - Best L2 error: 3.13e-08
-- Speedup: 1.97x
+- Speedup: 1.96x
 
 ![Error vs Time](figures/logistic_error_vs_time.png)
 
@@ -68,7 +68,7 @@
 ## van der pol
 
 - Best L2 error: 1.42e-04
-- Speedup: 17.04x
+- Speedup: 14.67x
 
 ![Error vs Time](figures/van_der_pol_error_vs_time.png)
 

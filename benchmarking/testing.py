@@ -16,12 +16,12 @@ os.makedirs("./benchmarking/results", exist_ok=True)
 os.makedirs("./benchmarking/results/figures",exist_ok=True)
 
 Y0 = [
-    np.array([0.0]),
-    np.array([0.0, 1.0]),
-    np.array([0.0, 1.0]),
-    np.array([0.0, 0.0]),
-    np.array([1.0]),
-    np.array([0.0, 1.0])
+    np.array([0.0],dtype=np.float64),
+    np.array([0.0, 1.0],dtype=np.float64),
+    np.array([0.0, 1.0],dtype=np.float64),
+    np.array([0.0, 0.0],dtype=np.float64),
+    np.array([1.0],dtype=np.float64),
+    np.array([0.0, 1.0],dtype=np.float64)
 ]
 
 rtol_list = [1e-3, 1e-6, 1e-7]
@@ -89,6 +89,8 @@ for f_py, f_njit, y0_vec in zip(problems_py, problems_njit, Y0):
             "max_error": float(np.max(np.abs(diff)))
         })
 
+with open('./benchmarking/results/benchmark_results.json','w') as f:
+    json.dump(results,f)
 
 # ===============================
 # DATAFRAME

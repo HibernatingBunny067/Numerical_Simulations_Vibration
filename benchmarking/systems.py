@@ -1,9 +1,7 @@
 import numpy as np
 from numba import njit
 
-# ================================
-# Constants
-# ================================
+# constants used in the testing systems
 LAMBDA = 0.5
 
 OMEGA_N = 1.0
@@ -16,10 +14,7 @@ R, K = 0.01, 3
 MU = 0.3
 
 
-# ================================
-# PYTHON VERSIONS (for SciPy)
-# ================================
-
+#pythonic for scipy
 def exponential_system_py(t, state):
     x = state[0]
     return np.array([LAMBDA * x], dtype=np.float64)
@@ -59,10 +54,7 @@ def van_der_pol_system_py(t, state):
     ], dtype=np.float64)
 
 
-# ================================
-# NUMBA VERSIONS (for your solver)
-# ================================
-
+# numba compiled for custom solver
 @njit
 def exponential_system(t, state):
     x = state[0]
@@ -124,7 +116,7 @@ def van_der_pol_system(t, state):
     return out
 
 
-
+## exported problems
 problems_py = [
     exponential_system_py,
     harmonic_oscillator_py,
