@@ -57,7 +57,8 @@ if __name__ == "__main__":
         y0=y0,
         t_span=t_span,
         h0=None,
-        n = len(t_uniform)
+        t_eval=t_uniform
+        # n = len(t_uniform)
     )
     start = time.perf_counter()
     solution = rk45(
@@ -65,7 +66,8 @@ if __name__ == "__main__":
         y0=y0,
         t_span=t_span,
         h0=None,
-        n = len(t_uniform)
+        # n = len(t_uniform)
+        t_eval=t_uniform
     )
     custom_time = time.perf_counter() - start
 
@@ -76,6 +78,7 @@ if __name__ == "__main__":
         y0,
         method="RK45",
         t_eval=t_uniform,
+        # n = len(t_uniform),
         rtol=1e-6,
         atol=1e-9
     )
@@ -106,14 +109,14 @@ if __name__ == "__main__":
     plt.plot(
         t_custom,
         y_custom[:,0],
-        'ro--',
+        'r--',
         label="Custom Solver"
     )
 
     plt.plot(
         scipy_sol.t,
         scipy_sol.y[0],
-        'b',
+        'bo--',
         label="SciPy RK45"
     )
 
