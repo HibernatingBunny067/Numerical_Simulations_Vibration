@@ -78,6 +78,7 @@ if __name__ == "__main__":
         y0,
         method="RK45",
         t_eval=t_uniform,
+        
         # n = len(t_uniform),
         rtol=1e-6,
         atol=1e-9
