@@ -25,8 +25,8 @@ core/
 ```sampling.py```
 - Provide (approx) dense outputs
 - Currently uses Cubic Hermite Spline interpolation (```scipy.interpolate```)
----
-### Performance against ```scipy.integrate.solve_ivp``` [here](benchmarking/results/report.md)
+
+### For benchmarking against ```scipy.integrate.solve_ivp``` look in the ```benchmaring``` folder in the project and search for ```report.md``` in the ```results``` subfolder
 
 ## Future Improvements (potentially)
 - Dense output using Native Dormand-Price interpolation.
