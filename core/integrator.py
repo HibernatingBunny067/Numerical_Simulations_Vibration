@@ -1,7 +1,7 @@
 from numba import njit
 import numpy as np
 from numpy.typing import NDArray
-from typing import Callable,Tuple
+from typing import Callable,Tuple,Optional
 
 
 ctab = np.array([0,1/5,3/10,4/5,8/9,1,1],dtype = np.float64)
@@ -17,7 +17,7 @@ atab = np.array([
     [35/384, 0, 500/1113, 125/192, -2187/6784, 11/84]
     ],dtype = np.float64)
 
-@njit
+@njit(cache = True)
 def rk45_step(
     t:float, 
     y:NDArray, 
@@ -28,7 +28,8 @@ def rk45_step(
     kstages:NDArray,
     sum_term:NDArray,
     y5:NDArray,
-    y4:NDArray
+    y4:NDArray,
+    sys_params:Optional[NDArray] = None
 ) -> Tuple[NDArray,NDArray]:
     state_dim = y.shape[0]
     for i in range(1,7):
@@ -38,7 +39,7 @@ def rk45_step(
                 sum_term[k] += atab[i, j] * kstages[j,k]
         y_temp = y + h * sum_term
         t_temp = t + ctab[i] * h
-        kstages[i] = system(t_temp, y_temp)
+        kstages[i] = system(t_temp, y_temp, sys_params)
 
     y5[:] = y
     y4[:] = y
@@ -65,7 +66,7 @@ def rk45_step(
     return y5.copy(),err
 
 
-@njit 
+@njit(cache = True)
 def integrate_core(
     t0:float,
     tf:float,
@@ -75,6 +76,7 @@ def integrate_core(
     rtol:float,
     atol:float,
     system:Callable,
+    sys_params: Optional[NDArray] = None
 ) -> tuple[NDArray,NDArray,NDArray]:
     t = t0
     state_dim = y0.shape[0]
@@ -92,10 +94,10 @@ def integrate_core(
 
     ts[idx] = t
     ys[idx] = y
-    fs[idx] = system(t, y)
+    fs[idx] = system(t, y,sys_params)
     kstages = np.empty((7,state_dim))
     sum_term = np.empty_like(y)
-    kstages[0] = system(t,y0)
+    kstages[0] = system(t,y0,sys_params)
     while t < tf:
 
         h = min(h, tf - t)
@@ -109,7 +111,7 @@ def integrate_core(
             system,
             kstages,
             sum_term,
-            y5,y4
+            y5,y4,sys_params
         )
 
         if error < 1.0:

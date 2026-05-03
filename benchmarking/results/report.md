@@ -1,4 +1,4 @@
-# Solver Benchmark Report
+# <div align = "center">Solver Benchmark Report</div>
 
 ## exponential
 

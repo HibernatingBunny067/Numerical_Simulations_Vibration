@@ -1,4 +1,4 @@
-# Dormand - Prince Adaptive RK45 using NumPy and Numba
+# <div align = "center">Dormand - Prince Adaptive RK45 using NumPy and Numba <div>
 
 ## Overview
 - Implementation of an adaptive Runge-Kutta 4(5) solver using Dormand-Prince method, optimized with NumPy and Numba for performance.
