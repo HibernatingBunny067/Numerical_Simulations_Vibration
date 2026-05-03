@@ -9,7 +9,7 @@ As numba doesn't work with python dictionaries, we convert the parameter object 
 #universal indexing scheme for the parameters 
 ZETA, OMEGA_BAR, E_BAR, KC_BAR, MU, R_DISK_BAR = range(6)
 
-@njit
+@njit(cache=True)
 def system(t: float, state: NDArray, params: NDArray) -> NDArray:
 
     X = state[0]
