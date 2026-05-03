@@ -2,8 +2,8 @@ import numpy as np
 import sys
 sys.path.append(r'/Users/harikesh/Documents/Numerical Simulations/1-DOF_Project')
 from model import Parameters,resolver_nd
-from runner import run_one
-from storage import save_result
+from simulation.runner import run_one
+from simulation.storage import save_result
 from tqdm import tqdm
 from features import extract_features
 
