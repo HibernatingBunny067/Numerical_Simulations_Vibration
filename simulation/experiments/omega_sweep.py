@@ -5,7 +5,7 @@ from model import Parameters,resolver_nd
 from simulation.runner import run_one
 from simulation.storage import save_result
 from tqdm import tqdm
-from features import extract_features
+from simulation.features import extract_features
 
 def run_omega_sweep(n = 40):
     base = Parameters()
