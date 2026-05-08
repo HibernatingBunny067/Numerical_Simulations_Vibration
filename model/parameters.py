@@ -65,7 +65,6 @@ class Parameters:
             return self.from_paper()
         
         print("Select correct sampling method and retry") 
-        exit(-1)
     
     def from_paper(self) -> Dict:
         '''

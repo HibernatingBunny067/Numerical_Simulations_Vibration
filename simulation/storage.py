@@ -2,29 +2,45 @@ import os
 import pandas as pd
 import numpy as np
 from numpy.typing import NDArray
-from typing import Dict
+from typing import Dict,Optional
 
+RESULTS_DIR = r'results'
+RAW_DIR = os.path.join(RESULTS_DIR,"raw")
+META_DIR = os.path.join(RESULTS_DIR,"metadata")
 
-RESULTS_DIR = r'results/raw'
-META_FILE = r'results/metadata.csv'
+def save_result(params:Dict,
+                trajectory:Optional[Dict]=None,
+                save_raw:bool=False,
+                filename:Optional[str]=None,
+                metafile_name:Optional[str] = "metadata.csv") -> None:
+    
+    os.makedirs(RAW_DIR,exist_ok=True)
+    os.makedirs(META_DIR,exist_ok=True)
+    
+    if trajectory is not None and save_raw:
 
+        filename = (
+            f"{filename}.npz" 
+            if filename is not None 
+            else f"{np.random.randint(0,100000)}.npz"
+        )
+        store_path = os.path.join(RAW_DIR,filename)
 
-def save_result(result:Dict[str,NDArray],params:Dict,save_raw:bool = False) -> None:
+        np.savez_compressed(
+            store_path,
+            t =trajectory['t'],
+            y = trajectory['y']
+        )
 
-    os.makedirs(RESULTS_DIR,exist_ok=True)
+    metadata_path = os.path.join(META_DIR,metafile_name)
 
-    file_id = np.random.randint(0,1000000000)
-    filename:str = f"{RESULTS_DIR}/{file_id}.npz"
+    df = pd.DataFrame([params])
 
-    if save_raw:
-        np.savez(filename,**result)
+    write_header = not os.path.exists(metadata_path)
 
-    row = {**params,"file":filename}
-
-    if os.path.exists(META_FILE):
-        df = pd.read_csv(META_FILE)
-        df = pd.concat((df,pd.DataFrame([row])),ignore_index=True)
-    else:
-        df= pd.DataFrame([row])
-
-    df.to_csv(META_FILE,index=False)
+    df.to_csv(
+        metadata_path,
+        mode='a',
+        header=write_header,
+        index=True
+    )
