@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Union,Callable,Dict,Optional,List
+from typing import Callable, List, Optional, Union
 from numpy.typing import NDArray
 from core.integrator import integrate_core
 from core.sampling import interpolated_results
@@ -48,6 +48,7 @@ def rk45(
         t_span: Union[List,NDArray],
         h0:Optional[float] = None,
         n:Optional[int] = None,
+        max_steps: Optional[int] = None,
         rtol:float = 1e-6,
         atol:float = 1e-9,
         t_eval:Optional[NDArray] = None,
@@ -64,56 +65,50 @@ def rk45(
     if h0 is None:
         h0 = __auto_h0__(f,t_span,y0,rtol,atol,sys_params)
     
-    max_steps = max(int((tf-t0)/h0), 10000000)
+    if max_steps is None:
+        # Pre-allocate storage for the adaptive solver.
+        # Avoid the previous "always allocate 10,000,000 steps" behavior, which can
+        # easily exhaust memory for typical problems.
+        estimated_steps = int(np.ceil((tf - t0) / max(h0, 1e-12))) + 16
+        max_steps = min(max(estimated_steps, 1024), 1_000_000)
 
-    try:
     ##integrate
-        ts,ys,fs = integrate_core(
-            t0,
-            tf,
-            y0,
-            h0,
-            max_steps,
-            rtol,
-            atol,
-            f,
-            sys_params
-        )
+    ts,ys,fs = integrate_core(
+        t0,
+        tf,
+        y0,
+        h0,
+        max_steps,
+        rtol,
+        atol,
+        f,
+        sys_params
+    )
 
-        if t_eval is not None:
-            t_uniform = t_eval
-        else:
-            if n is None:
-                n = __auto_n__(ts,t_span,rtol)
-                n = max(n,2*len(ts))
+    if t_eval is not None:
+        t_uniform = t_eval
+    else:
+        if n is None:
+            n = __auto_n__(ts,t_span,rtol)
+            n = max(n,2*len(ts))
 
-            t_uniform = np.linspace(t0,tf,n)
+        t_uniform = np.linspace(t0,tf,n)
         
-        ys_interpolated = interpolated_results(t_uniform,ts,ys,fs)
-        event_times = []
-        event_states = []
-        if events is not None: # this part is not yet completed
-            for _,event in enumerate(events):
-                event_time,event_state = detect_event(ts,ys,event)
-                event_times.append(event_time)
-                event_states.append(event_state)
-        status = 1
-        message = "Integration successfully converged."
+    ys_interpolated = interpolated_results(t_uniform,ts,ys,fs)
+    if events is not None:
+        # Event handling is not currently surfaced in the output; keep the detection
+        # here as a placeholder without affecting the solver result.
+        for event in events:
+            detect_event(ts,ys,event)
 
-        return rk45Output(
-            t = t_uniform, #type: ignore
-            y = ys_interpolated, #type: ignore
-            n_steps=len(ts), #type: ignore
-            predicted_n= n,
-            status = status,
-            message=message
-        )
-    except RuntimeError as e:
-        status = -1
-        message = str(e)
-        raise e
-
-
+    return rk45Output(
+        t = t_uniform, #type: ignore
+        y = ys_interpolated, #type: ignore
+        n_steps=len(ts), #type: ignore
+        predicted_n= n if n is not None else len(t_uniform),
+        status = 1,
+        message="Integration successfully converged."
+    )
 
 
 def detect_event(
@@ -126,14 +121,15 @@ def detect_event(
     event_times,event_states = [],[]
 
     for i in range(len(g)-1):
-        if g[i]*g[i-1] < 0:
-            alpha = abs(g[i-1]) / (abs(g[i]) + abs(g[i-1]))
+        if g[i] * g[i+1] < 0:
+            denom = abs(g[i]) + abs(g[i+1])
+            alpha = abs(g[i]) / denom if denom != 0 else 0.5
 
-            t_event = t[i] + alpha*(t[i+1] - t[i])
-            y_event = y[i] + alpha*(t[i+1]- t[i])
+            t_event = t[i] + alpha * (t[i+1] - t[i])
+            y_event = y[i] + alpha * (y[i+1] - y[i])
 
             event_times.append(t_event)
-            event_states.append(event_states)
+            event_states.append(y_event)
     return event_times,event_states
 
 
@@ -141,4 +137,4 @@ def refine_roots(t1,y1,t2,y2,max_iter=10):
     '''
     Bisection method to refine the time of events
     '''
-    pass
+    raise NotImplementedError("Root refinement is not implemented yet.")

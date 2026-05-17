@@ -42,5 +42,5 @@ def save_result(params:Dict,
         metadata_path,
         mode='a',
         header=write_header,
-        index=True
+        index=False
     )

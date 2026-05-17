@@ -64,7 +64,7 @@ class Parameters:
         if mode == "paper":
             return self.from_paper()
         
-        print("Select correct sampling method and retry") 
+        raise ValueError(f"Unknown sampling mode: {mode!r}")
     
     def from_paper(self) -> Dict:
         '''
@@ -75,7 +75,9 @@ class Parameters:
             "ecc": 0.5*self.clearance,
             "kc": 7*self.k,   #type: ignore
             "mu": 0.01,
-            "r_disk": 10.0
+            # The paper specifies this as a non-dimensional radius ratio.
+            # Store it as dimensional radius so that resolver_nd computes r_disk_bar≈10.
+            "r_disk": 10.0 * self.clearance
         }
 
 def resolver_nd(base:Parameters,sampled:Dict) -> Tuple[NDArray,float]:
@@ -101,5 +103,4 @@ def resolver_nd(base:Parameters,sampled:Dict) -> Tuple[NDArray,float]:
         sampled.get("mu",0.01),
         r_disk_bar
     ],dtype=np.float64), total_tau
-
 

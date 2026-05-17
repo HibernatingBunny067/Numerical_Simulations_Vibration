@@ -22,8 +22,8 @@ def system_scipy(t, state):
     return np.array([v, xddot])
 
 
-@njit
-def system_custom(t, state):
+@njit(cache=True)
+def system_custom(t, state, _params):
     x, v = state
 
     xddot = (
@@ -41,6 +41,7 @@ if __name__ == "__main__":
     y0 = [1.0, 0.0]
 
     t_uniform = np.linspace(0, 10.0, 250)
+    dummy_params = np.zeros(1, dtype=np.float64)
 
     wd = omega_n * np.sqrt(1 - zeta**2)
 
@@ -57,7 +58,8 @@ if __name__ == "__main__":
         y0=y0,
         t_span=t_span,
         h0=None,
-        t_eval=t_uniform
+        t_eval=t_uniform,
+        sys_params=dummy_params
         # n = len(t_uniform)
     )
     start = time.perf_counter()
@@ -67,7 +69,8 @@ if __name__ == "__main__":
         t_span=t_span,
         h0=None,
         # n = len(t_uniform)
-        t_eval=t_uniform
+        t_eval=t_uniform,
+        sys_params=dummy_params
     )
     custom_time = time.perf_counter() - start
 
@@ -84,8 +87,8 @@ if __name__ == "__main__":
         atol=1e-9
     )
     scipy_time = time.perf_counter() - start
-    t_custom = solution["t"]
-    y_custom = solution["y"]
+    t_custom = solution.t
+    y_custom = solution.y
     custom_error = np.max(np.abs(x_true - y_custom[:, 0]))
     scipy_error = np.max(np.abs(x_true - scipy_sol.y[0]))
 
@@ -104,7 +107,7 @@ if __name__ == "__main__":
 
     print("\n----- Internal Solver Stats -----")
     print("SciPy nfev:", scipy_sol.nfev)
-    print("Custom solver: ", solution["n"])
+    print("Custom steps:", solution.n_steps)
     plt.figure(figsize=(12,6))
 
     plt.plot(
