@@ -1,4 +1,4 @@
-# 1-DOF Numerical Simulations (Custom RK45)
+# 2-DOF Numerical Simulations (Custom RK45)
 
 Numba-accelerated adaptive RK45 (`Dormand–Prince 5(4)`) integrator plus a small simulation harness for a non-dimensional rotor/stator rubbing model aligned with `papers/main.pdf`.
 
