@@ -1,9 +1,9 @@
-# <div align = "center">Solver Benchmark Report</div>
+# Solver Benchmark Report
 
 ## exponential
 
 - Best L2 error: 0.00e+00
-- Speedup: 5.12x
+- Speedup: 4.23x
 
 ![Error vs Time](figures/exponential_error_vs_time.png)
 
@@ -16,7 +16,7 @@
 ## harmonic
 
 - Best L2 error: 1.92e-05
-- Speedup: 17.51x
+- Speedup: 16.85x
 
 ![Error vs Time](figures/harmonic_error_vs_time.png)
 
@@ -29,7 +29,7 @@
 ## damped harmonic
 
 - Best L2 error: 1.52e-05
-- Speedup: 17.62x
+- Speedup: 16.58x
 
 ![Error vs Time](figures/damped_harmonic_error_vs_time.png)
 
@@ -42,7 +42,7 @@
 ## forced
 
 - Best L2 error: 5.65e-05
-- Speedup: 18.71x
+- Speedup: 17.15x
 
 ![Error vs Time](figures/forced_error_vs_time.png)
 
@@ -55,7 +55,7 @@
 ## logistic
 
 - Best L2 error: 3.13e-08
-- Speedup: 2.04x
+- Speedup: 2.12x
 
 ![Error vs Time](figures/logistic_error_vs_time.png)
 
@@ -68,7 +68,7 @@
 ## van der pol
 
 - Best L2 error: 1.42e-04
-- Speedup: 15.97x
+- Speedup: 17.33x
 
 ![Error vs Time](figures/van_der_pol_error_vs_time.png)
 

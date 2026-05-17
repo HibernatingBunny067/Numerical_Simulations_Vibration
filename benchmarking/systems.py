@@ -56,7 +56,7 @@ def van_der_pol_system_py(t, state):
 
 # numba compiled for custom solver
 @njit
-def exponential_system(t, state):
+def exponential_system(t, state, _params):
     x = state[0]
     out = np.empty(1)
     out[0] = LAMBDA * x
@@ -64,7 +64,7 @@ def exponential_system(t, state):
 
 
 @njit
-def harmonic_oscillator(t, state):
+def harmonic_oscillator(t, state, _params):
     x = state[0]
     xdot = state[1]
 
@@ -75,7 +75,7 @@ def harmonic_oscillator(t, state):
 
 
 @njit
-def damped_harmonic_oscillator(t, state):
+def damped_harmonic_oscillator(t, state, _params):
     x = state[0]
     xdot = state[1]
 
@@ -86,7 +86,7 @@ def damped_harmonic_oscillator(t, state):
 
 
 @njit
-def forced_oscillator(t, state):
+def forced_oscillator(t, state, _params):
     x = state[0]
     xdot = state[1]
 
@@ -97,7 +97,7 @@ def forced_oscillator(t, state):
 
 
 @njit
-def logistic_system(t, state):
+def logistic_system(t, state, _params):
     x = state[0]
 
     out = np.empty(1)
@@ -106,7 +106,7 @@ def logistic_system(t, state):
 
 
 @njit
-def van_der_pol_system(t, state):
+def van_der_pol_system(t, state, _params):
     x = state[0]
     xdot = state[1]
 

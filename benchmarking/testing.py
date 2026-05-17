@@ -4,12 +4,9 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from time import perf_counter_ns
-import sys
-path = r'/Users/harikesh/Documents/Numerical Simulations/1-DOF_Project'
-sys.path.append(path)
 from scipy.integrate import solve_ivp
 from core import rk45
-from systems import problems_njit, problems_py
+from benchmarking.systems import problems_njit, problems_py
 
 
 os.makedirs("./benchmarking/results", exist_ok=True)
@@ -29,24 +26,26 @@ t_span = [0.0, 10.0]
 t_eval = np.linspace(t_span[0], t_span[1], 1000)
 
 results = []
+dummy_params = np.zeros(1, dtype=np.float64)
 
 # -------------------------------
-# Helper
+# Helper to get names of the problems
 # -------------------------------
 def safe_name(name: str) -> str:
     return name.replace(" ", "_")
 
 
-# ===============================
-# MAIN LOOP
-# ===============================
+# ===============================================================================
+# MAIN LOOP (running the problems sequentially for custom solver and Scipy)
+# ============================================================================
 for f_py, f_njit, y0_vec in zip(problems_py, problems_njit, Y0):
     problem_name = " ".join(f_py.__name__.split('_')[:-2])
     safe_problem = safe_name(problem_name)
 
     print(f"\nRunning: {problem_name}")
 
-    rk45(f=f_njit, y0=y0_vec, t_span=t_span, t_eval=t_eval)
+    ##NOTE: This was run twice for every custom solver iteration because, njit first compiles the code and then uses the machine code execution, the first iteration has some compilation overhead, we don't care about that (technically I should, but it is what it is)
+    rk45(f=f_njit, y0=y0_vec, t_span=t_span, t_eval=t_eval, sys_params=dummy_params)
 
     for rtol in rtol_list:
 
@@ -56,7 +55,8 @@ for f_py, f_njit, y0_vec in zip(problems_py, problems_njit, Y0):
             y0=y0_vec,
             t_span=t_span,
             t_eval=t_eval,
-            rtol=rtol
+            rtol=rtol,
+            sys_params=dummy_params
         )
         t2 = perf_counter_ns()
 
@@ -72,7 +72,7 @@ for f_py, f_njit, y0_vec in zip(problems_py, problems_njit, Y0):
         )
         t4 = perf_counter_ns()
 
-        y_custom = sol_custom["y"]
+        y_custom = sol_custom.y
         y_scipy = sol_scipy.y.T
 
         diff = y_custom - y_scipy
@@ -83,7 +83,7 @@ for f_py, f_njit, y0_vec in zip(problems_py, problems_njit, Y0):
             "rtol": rtol,
             "custom_time_ns": int(t2 - t1),
             "scipy_time_ns": int(t4 - t3),
-            "custom_steps": int(len(sol_custom["t"])),
+            "custom_steps": int(sol_custom.n_steps),
             "scipy_steps": int(len(sol_scipy.t)),
             "l2_error": float(np.linalg.norm(diff)),
             "max_error": float(np.max(np.abs(diff)))
@@ -93,14 +93,14 @@ with open('./benchmarking/results/benchmark_results.json','w') as f:
     json.dump(results,f)
 
 # ===============================
-# DATAFRAME
+# DATAFRAME(storing the results in .csv format)
 # ===============================
 df = pd.DataFrame(results)
 df["speedup"] = df["scipy_time_ns"] / df["custom_time_ns"]
 
 
 # ===============================
-# PLOTTING
+# PLOTTING(report plots)
 # ===============================
 def plot_error_vs_time(df, pname):
     subset = df[df["problem"] == pname]
@@ -186,10 +186,10 @@ for f_py, f_njit, y0_vec in zip(problems_py, problems_njit, Y0):
 
     pname = " ".join(f_py.__name__.split('_')[:-2])
 
-    sol_custom = rk45(f_njit, y0_vec, t_span, t_eval=t_eval)
+    sol_custom = rk45(f_njit, y0_vec, t_span, t_eval=t_eval, sys_params=dummy_params)
     sol_scipy = solve_ivp(f_py, t_span, y0_vec, t_eval=t_eval)
 
-    plot_trajectory(pname, t_eval, sol_custom["y"], sol_scipy.y.T)
+    plot_trajectory(pname, t_eval, sol_custom.y, sol_scipy.y.T)
 
 
 # ===============================
