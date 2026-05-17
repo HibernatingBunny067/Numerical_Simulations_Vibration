@@ -1,39 +1,64 @@
-## 1-DOF Numerical Simulations (Custom RK45)
+# 1-DOF Numerical Simulations (Custom RK45)
 
-This project contains a custom adaptive RK45 integrator (Numba-accelerated) and a small simulation harness for running parameterized experiments and saving results/metadata.
+Numba-accelerated adaptive RK45 (`Dormand–Prince 5(4)`) integrator plus a small simulation harness for a non-dimensional rotor/stator rubbing model aligned with `papers/main.pdf`.
 
-### Quick start
+## What’s in this repo
 
-- Create env + install deps: `./run_simulations.sh`
-- Or run directly (after installing deps): `python3 -m simulation.main`
+- **Core solver**: adaptive RK45 stepping + Hermite interpolation to a uniform grid.
+- **Model**: non-dimensional state-space dynamics and a single “paper baseline” parameter set.
+- **Simulation**: experiments (paper reproduction + parameter sweeps), feature extraction, and result storage.
+- **Notebooks**: analysis/validation plots that reference specific figures in `papers/main.pdf`.
 
-By default, `simulation.main` runs the baseline paper reproduction run.
+## Quick start
 
-### CLI
+Create a virtualenv, install requirements, and run the baseline reproduction:
 
-`python3 -m simulation.main --help`
+- `./run_simulations.sh`
 
-Examples:
+Or, after installing dependencies yourself:
+
 - `python3 -m simulation.main --reproduce-paper`
+
+Run an Omega sweep:
+
 - `python3 -m simulation.main --omega-sweep --n 500`
 
-### Project layout
+## Project structure
 
-- `core/` RK45 implementation (`core/solver.py`, `core/integrator.py`)
-- `model/` system dynamics and parameter mapping (`model/system.py`, `model/parameters.py`)
-- `simulation/` experiment scripts, feature extraction, and storage
-- `benchmarking/` quick comparison against SciPy RK45
+- `core/` — RK45 implementation
+  - `core/integrator.py` (Numba RK45 stepper + adaptive loop)
+  - `core/solver.py` (public `rk45` wrapper + sampling)
+  - `core/sampling.py` (interpolation to `t_eval`)
+- `model/` — dynamics + parameter mapping
+  - `model/system.py` (system RHS: `f(t, state, params_nd)`)
+  - `model/parameters.py` (dimensional parameters + `resolver_nd`)
+- `simulation/` — experiments + storage
+  - `simulation/main.py` (CLI entrypoint)
+  - `simulation/experiments/paper_reproduce.py` (baseline + sweep)
+  - `simulation/features.py` (steady-state feature extraction)
+  - `simulation/storage.py` (raw `.npz` + metadata `.csv`)
+- `notebooks/` — analysis and reporting
+  - `notebooks/analysis.ipynb` (paper-aligned validation + sweep interpretation)
+  - `notebooks/README.md` (what each notebook does)
+- `benchmarking/` — quick comparison against SciPy’s `solve_ivp(RK45)`
+- `papers/` — references (including `papers/main.pdf`)
 
-### Outputs
+## Outputs
 
-Results are written under `results/`:
-- `results/raw/` time series `.npz` (optional)
-- `results/metadata/` metadata/features `.csv`
+By default results are written under `results/`:
 
-### Notes
+- `results/raw/` — raw trajectories (`.npz`) when enabled by the experiment
+- `results/metadata/` — run metadata + extracted features (`.csv`)
 
-- The integrator expects the system signature `f(t, state, params_nd)` where `params_nd` is a NumPy array (see `model/system.py`).
+## API expectations
 
-### Suggested further addition
-- [] Implement Event detection in the solver
-- [] Use Dormand-Prince interpolation instead of Cubic Spline in solver post-processing.
+The solver expects a system function with signature:
+
+- `f(t, state, params_nd) -> ndarray`
+
+where `params_nd` is a NumPy array (see `model/system.py` and `model/parameters.py`).
+
+## Next improvements (optional)
+
+- [ ] Implement and surface solver **event detection** in `rk45Output`.
+- [ ] Replace cubic Hermite sampling with native **Dormand–Prince dense output**.
